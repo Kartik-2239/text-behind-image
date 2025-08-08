@@ -18,6 +18,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
+  const [isDragging, setIsDragging] = useState(false)
 
   const fileInputRef = useRef(null)
   const imageRef = useRef(null)
@@ -109,9 +110,40 @@ function App() {
   const handleFile = e => {
     const file = e.target.files?.[0]
     if (!file) return
-    const url = URL.createObjectURL(file)
-    setImageLoaded(false)
-    setImageSrc(url)
+    loadFile(file)
+  }
+
+  const loadFile = (file) => {
+     if (!file || !file.type?.startsWith?.('image/')) return
+     const url = URL.createObjectURL(file)
+     setImageLoaded(false)
+     setImageSrc(url)
+  }
+
+  const onDragOver = (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+    setIsDragging(true)
+  }
+
+  const onDragEnter = (e) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const onDragLeave = (e) => {
+    // Only hide when leaving the container
+    if (e.currentTarget === e.target) setIsDragging(false)
+  }
+
+  const onDrop = (e) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const files = e.dataTransfer?.files
+    if (files && files.length) {
+      const firstImage = Array.from(files).find(f => f.type?.startsWith?.('image/'))
+      if (firstImage) loadFile(firstImage)
+    }
   }
 
   const addText = () => {
@@ -240,7 +272,21 @@ function App() {
               <div className="font-medium">Canvas</div>
               {isProcessing && <div className="text-xs text-neutral-400">Processing…</div>}
             </div>
-            <div className="p-4 grid grid-cols-1 gap-4 place-items-center relative">
+            <div
+              className="p-4 grid grid-cols-1 gap-4 place-items-center relative"
+              onDragOver={onDragOver}
+              onDragEnter={onDragEnter}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
+            >
+              {isDragging && (
+                <div className="absolute inset-0 z-20 grid place-items-center bg-neutral-950/50 backdrop-blur-sm border-2 border-dashed border-neutral-600">
+                  <div className="text-center">
+                    <div className="text-sm text-neutral-200">Drop image to upload</div>
+                    <div className="text-xs text-neutral-400">PNG, JPG, WebP</div>
+                  </div>
+                </div>
+              )}
               {imageSrc && (!imageLoaded || isProcessing) && (
                 <div className="absolute inset-0 z-10 grid place-items-center bg-neutral-950/40 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-3">
