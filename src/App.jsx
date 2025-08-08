@@ -198,7 +198,7 @@ function App() {
                   <div className="space-y-2">
                     <label className="text-sm text-neutral-300">Weight</label>
                     <select value={selectedText.weight} onChange={e => updateSelected({ weight: Number(e.target.value) })} className="w-full px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700">
-                      {[100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500].map(w => (<option key={w} value={w}>{w}</option>))}
+                      {[100,200,300,400,500,600,700,800,900,1000].map(w => (<option key={w} value={w}>{w}</option>))}
                     </select>
                   </div>
                 </div>
